@@ -2,25 +2,20 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Discovery from './pages/Discovery';
+import Navbar from './components/Navbar';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
   const { token, loading } = useAuth();
 
-  if (loading) return <div>Loading...</div>;
-  return token ? children : <Navigate to="/login" />;
-};
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  
+  if (!token) return <Navigate to="/login" />;
 
-const Dashboard = () => {
-  const { user, logout } = useAuth();
   return (
-    <div className="p-8">
-      <h1 className="text-2xl font-bold">Welcome, {user?.full_name}</h1>
-      <button 
-        onClick={logout}
-        className="mt-4 px-4 py-2 bg-red-600 text-white rounded"
-      >
-        Logout
-      </button>
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
+      <main>{children}</main>
     </div>
   );
 };
@@ -36,7 +31,15 @@ function App() {
             path="/" 
             element={
               <PrivateRoute>
-                <Dashboard />
+                <Discovery />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/portfolio" 
+            element={
+              <PrivateRoute>
+                <div className="p-8 text-center text-gray-500">Portfolio coming soon...</div>
               </PrivateRoute>
             } 
           />
