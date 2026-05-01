@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Discovery from './pages/Discovery';
+import Portfolio from './pages/Portfolio';
 import Navbar from './components/Navbar';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -39,7 +40,7 @@ function App() {
             path="/portfolio" 
             element={
               <PrivateRoute>
-                <div className="p-8 text-center text-gray-500">Portfolio coming soon...</div>
+                <Portfolio />
               </PrivateRoute>
             } 
           />
