@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { SocketProvider } from './context/SocketContext';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Discovery from './pages/Discovery';
@@ -24,28 +25,30 @@ const PrivateRoute = ({ children }: { children: JSX.Element }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route 
-            path="/" 
-            element={
-              <PrivateRoute>
-                <Discovery />
-              </PrivateRoute>
-            } 
-          />
-          <Route 
-            path="/portfolio" 
-            element={
-              <PrivateRoute>
-                <Portfolio />
-              </PrivateRoute>
-            } 
-          />
-        </Routes>
-      </Router>
+      <SocketProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route 
+              path="/" 
+              element={
+                <PrivateRoute>
+                  <Discovery />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/portfolio" 
+              element={
+                <PrivateRoute>
+                  <Portfolio />
+                </PrivateRoute>
+              } 
+            />
+          </Routes>
+        </Router>
+      </SocketProvider>
     </AuthProvider>
   );
 }
