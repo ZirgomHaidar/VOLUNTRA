@@ -15,3 +15,5 @@ class User(Base):
     role = Column(Enum(UserRole), default=UserRole.VOLUNTEER, nullable=False)
     is_active = Column(Boolean(), default=True)
     is_verified = Column(Boolean(), default=False)
+    reliability_score = Column(Integer, default=100) # 0-100
+    points = Column(Integer, default=0)
