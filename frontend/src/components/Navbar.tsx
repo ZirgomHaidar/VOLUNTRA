@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, User, LogOut, Heart } from 'lucide-react';
+import { Search, User, LogOut, Heart, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -35,6 +35,15 @@ const Navbar = () => {
                 <div className="flex items-center">
                   <User size={16} className="mr-2" />
                   Portfolio
+                </div>
+              </Link>
+              <Link 
+                to="/verification" 
+                className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/verification') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
+              >
+                <div className="flex items-center">
+                  <ShieldCheck size={16} className="mr-2" />
+                  Trust
                 </div>
               </Link>
             </div>

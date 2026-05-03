@@ -5,6 +5,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Discovery from './pages/Discovery';
 import Portfolio from './pages/Portfolio';
+import Verification from './pages/Verification';
 import Navbar from './components/Navbar';
 
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -43,6 +44,14 @@ function App() {
               element={
                 <PrivateRoute>
                   <Portfolio />
+                </PrivateRoute>
+              } 
+            />
+            <Route 
+              path="/verification" 
+              element={
+                <PrivateRoute>
+                  <Verification />
                 </PrivateRoute>
               } 
             />
