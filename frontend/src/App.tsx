@@ -6,14 +6,20 @@ import Signup from './pages/Signup';
 import Discovery from './pages/Discovery';
 import Portfolio from './pages/Portfolio';
 import Verification from './pages/Verification';
+import AdminPanel from './pages/AdminPanel';
+import OrgDashboard from './pages/OrgDashboard';
 import Navbar from './components/Navbar';
 
-const PrivateRoute = ({ children }: { children: JSX.Element }) => {
-  const { token, loading } = useAuth();
+const PrivateRoute = ({ children, roles }: { children: JSX.Element, roles?: string[] }) => {
+  const { token, user, loading } = useAuth();
 
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   
   if (!token) return <Navigate to="/login" />;
+
+  if (roles && user && !roles.includes(user.role)) {
+    return <Navigate to="/" />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -31,10 +37,12 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            
+            {/* Volunteer Routes */}
             <Route 
               path="/" 
               element={
-                <PrivateRoute>
+                <PrivateRoute roles={['volunteer']}>
                   <Discovery />
                 </PrivateRoute>
               } 
@@ -42,11 +50,33 @@ function App() {
             <Route 
               path="/portfolio" 
               element={
-                <PrivateRoute>
+                <PrivateRoute roles={['volunteer']}>
                   <Portfolio />
                 </PrivateRoute>
               } 
             />
+            
+            {/* Organization Routes */}
+            <Route 
+              path="/org-dashboard" 
+              element={
+                <PrivateRoute roles={['organization']}>
+                  <OrgDashboard />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Admin Routes */}
+            <Route 
+              path="/admin-panel" 
+              element={
+                <PrivateRoute roles={['admin']}>
+                  <AdminPanel />
+                </PrivateRoute>
+              } 
+            />
+
+            {/* Shared Routes */}
             <Route 
               path="/verification" 
               element={

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, User, LogOut, Heart, ShieldCheck, Trophy, Shield } from 'lucide-react';
+import { Search, User, LogOut, Heart, ShieldCheck, Trophy, Shield, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -19,30 +19,62 @@ const Navbar = () => {
             </Link>
             
             <div className="hidden md:flex items-center space-x-4">
-              <Link 
-                to="/" 
-                className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
-              >
-                <div className="flex items-center">
-                  <Search size={16} className="mr-2" />
-                  Discovery
-                </div>
-              </Link>
-              <Link 
-                to="/portfolio" 
-                className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/portfolio') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
-              >
-                <div className="flex items-center">
-                  <User size={16} className="mr-2" />
-                  Portfolio
-                </div>
-              </Link>
+              {/* Volunteer Links */}
+              {user?.role === 'volunteer' && (
+                <>
+                  <Link 
+                    to="/" 
+                    className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
+                    <div className="flex items-center">
+                      <Search size={16} className="mr-2" />
+                      Discovery
+                    </div>
+                  </Link>
+                  <Link 
+                    to="/portfolio" 
+                    className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/portfolio') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
+                  >
+                    <div className="flex items-center">
+                      <User size={16} className="mr-2" />
+                      Portfolio
+                    </div>
+                  </Link>
+                </>
+              )}
+
+              {/* Organization Links */}
+              {user?.role === 'organization' && (
+                <Link 
+                  to="/org-dashboard" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/org-dashboard') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  <div className="flex items-center">
+                    <LayoutDashboard size={16} className="mr-2" />
+                    Dashboard
+                  </div>
+                </Link>
+              )}
+
+              {/* Admin Links */}
+              {user?.role === 'admin' && (
+                <Link 
+                  to="/admin-panel" 
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/admin-panel') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
+                >
+                  <div className="flex items-center">
+                    <ShieldCheck size={16} className="mr-2" />
+                    Admin Panel
+                  </div>
+                </Link>
+              )}
+
               <Link 
                 to="/verification" 
                 className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/verification') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
               >
                 <div className="flex items-center">
-                  <ShieldCheck size={16} className="mr-2" />
+                  <Shield size={16} className="mr-2" />
                   Trust
                 </div>
               </Link>

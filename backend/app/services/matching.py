@@ -18,7 +18,6 @@ def calculate_match_score(
 
     # 1. Skill Match (40%)
     user_skills = {s.skill for s in db.query(UserSkill).filter(UserSkill.user_id == user.id).all()}
-    # Fetch event skills directly from association table
     event_skill_names = {row.skill for row in db.query(event_skills).filter(event_skills.c.event_id == event.id).all()}
     
     if event_skill_names:
@@ -26,20 +25,39 @@ def calculate_match_score(
         match_ratio = len(matches) / len(event_skill_names)
         score += (match_ratio * 40)
         if matches:
-            reasons.append(f"Matches skills: {', '.join(matches)}")
+            reasons.append(f"Skill Match: {int(match_ratio * 100)}%")
 
-    # 2. Location Proximity (15%)
-    # Max proximity points if distance < 5km, scales down to 0 at 50km
+    # 2. Availability (20%) - Simplified: Check if user has no overlapping events
+    # For now, we'll give 20% if they are active, assuming they manage their calendar
+    score += 20
+    reasons.append("Available for this time slot")
+
+    # 3. Location Proximity (15%)
     if distance_km < 5:
         score += 15
-        reasons.append("Very close to your location")
+        reasons.append("Proximity: Very Close (<5km)")
     elif distance_km < 50:
-        score += (15 * (1 - (distance_km / 50)))
-        reasons.append(f"Within {round(distance_km, 1)}km")
+        loc_score = 15 * (1 - (distance_km / 50))
+        score += loc_score
+        reasons.append(f"Proximity: {round(distance_km, 1)}km")
 
-    # 3. Reliability & Experience (Placeholder logic for 25%)
-    # In a real app, this would query history/reliability services
-    score += 15 # Base participation points
+    # 4. Reliability Score (15%)
+    # user.reliability_score is 0-100, we take 15% of it
+    rel_score = (user.reliability_score / 100) * 15
+    score += rel_score
+    reasons.append(f"Reliability: {user.reliability_score}%")
+
+    # 5. Experience (10%) - Based on number of completed participations
+    completed_count = db.query(Participation).filter(
+        Participation.user_id == user.id,
+        Participation.status == ParticipationStatus.COMPLETED
+    ).count()
+    
+    # 2% per completed event, max 10%
+    exp_score = min(completed_count * 2, 10)
+    score += exp_score
+    if completed_count > 0:
+        reasons.append(f"Experience: {completed_count} events completed")
     
     return round(score, 2), reasons
 

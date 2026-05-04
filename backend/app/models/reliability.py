@@ -5,6 +5,8 @@ from app.db.base_class import Base
 
 class ParticipationStatus(str, enum.Enum):
     JOINED = "joined"
+    CHECKED_IN = "checked_in"
+    CHECKED_OUT = "checked_out"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
     NO_SHOW = "no_show"
