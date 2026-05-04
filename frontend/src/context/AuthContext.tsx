@@ -7,6 +7,8 @@ interface User {
   full_name: string;
   role: string;
   is_verified: boolean;
+  reliability_score: number;
+  points: number;
 }
 
 interface AuthContextType {

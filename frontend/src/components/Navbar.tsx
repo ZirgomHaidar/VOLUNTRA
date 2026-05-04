@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, User, LogOut, Heart, ShieldCheck } from 'lucide-react';
+import { Search, User, LogOut, Heart, ShieldCheck, Trophy, Shield } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
@@ -49,7 +49,18 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-6">
+            <div className="hidden lg:flex items-center space-x-4 border-r border-gray-100 pr-6">
+              <div className="flex items-center text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm font-bold shadow-sm border border-amber-100">
+                <Trophy size={14} className="mr-1.5" />
+                {user?.points} pts
+              </div>
+              <div className="flex items-center text-blue-600 bg-blue-50 px-3 py-1 rounded-full text-sm font-bold shadow-sm border border-blue-100">
+                <Shield size={14} className="mr-1.5" />
+                {user?.reliability_score}%
+              </div>
+            </div>
+
             <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-gray-900">{user?.full_name}</p>
               <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
