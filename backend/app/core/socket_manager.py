@@ -5,9 +5,9 @@ class SocketManager:
     def __init__(self):
         self.sio = socketio.AsyncServer(
             async_mode='asgi',
-            cors_allowed_origins='*'
+            cors_allowed_origins=[]
         )
-        self.app = socketio.ASGIApp(self.sio)
+        self.app = socketio.ASGIApp(self.sio, socketio_path='ws/socket.io')
         self.user_sessions: Dict[int, str] = {} # user_id -> sid
 
     async def connect(self, sid, environ, auth: Any):
