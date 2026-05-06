@@ -15,6 +15,7 @@ class DocumentResponse(BaseModel):
     status: DocumentStatus
     url: str
     admin_comment: Optional[str]
+    user_id: int
     
     class Config:
         from_attributes = True
@@ -55,7 +56,8 @@ def get_my_documents(
     return db.query(Document).filter(Document.user_id == current_user.id).all()
 
 # Admin Endpoints
-@router.get("/admin/pending", response_model=List[DocumentResponse])
+@router.get("/pending"
+, response_model=List[DocumentResponse])
 def get_pending_documents(
     db: Session = Depends(deps.get_db),
     current_user: User = Depends(deps.get_current_active_user),
@@ -67,7 +69,7 @@ def get_pending_documents(
         raise HTTPException(status_code=403, detail="Not authorized")
     return db.query(Document).filter(Document.status == DocumentStatus.PENDING).all()
 
-@router.post("/admin/review/{doc_id}")
+@router.post("/review/{doc_id}")
 def review_document(
     doc_id: int,
     status: DocumentStatus,
