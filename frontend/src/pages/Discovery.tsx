@@ -5,7 +5,7 @@ import { MapPin, Star, Zap, Info } from 'lucide-react';
 interface MatchResult {
   event_id: number;
   title: string;
-  score: float;
+  score: number;
   distance_km: number;
   match_reasons: string[];
 }

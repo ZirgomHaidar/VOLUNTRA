@@ -20,7 +20,14 @@ const Login = () => {
       
       const response = await api.post('/auth/login', formData);
       await login(response.data.access_token);
-      navigate('/');
+      
+      // Fetch user again or decode token to get role
+      const userRes = await api.get('/auth/me');
+      const role = userRes.data.role;
+      
+      if (role === 'admin') navigate('/admin-panel');
+      else if (role === 'organization') navigate('/org-dashboard');
+      else navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Login failed');
     }

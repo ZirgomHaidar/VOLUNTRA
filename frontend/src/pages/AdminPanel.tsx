@@ -21,7 +21,7 @@ const AdminPanel = () => {
 
   const fetchPending = async () => {
     try {
-      const response = await api.get('/admin/admin/pending');
+      const response = await api.get('/admin/pending');
       setPendingDocs(response.data);
     } catch (err) {
       setError('Only administrators can access this page.');
@@ -32,7 +32,7 @@ const AdminPanel = () => {
 
   const handleReview = async (docId: number, status: string) => {
     try {
-      await api.post(`/admin/admin/review/${docId}`, null, {
+      await api.post(`/admin/review/${docId}`, null, {
         params: { status, comment: status === 'approved' ? 'Verified by Admin' : 'Incomplete documentation' }
       });
       setPendingDocs(prev => prev.filter(d => d.id !== docId));

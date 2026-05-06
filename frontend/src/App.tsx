@@ -17,7 +17,9 @@ const PrivateRoute = ({ children, roles }: { children: JSX.Element, roles?: stri
   
   if (!token) return <Navigate to="/login" />;
 
-  if (roles && user && !roles.includes(user.role)) {
+  if (roles && user && !roles.includes(user.role.toLowerCase())) {
+    if (user.role === 'admin') return <Navigate to="/admin-panel" />;
+    if (user.role === 'organization') return <Navigate to="/org-dashboard" />;
     return <Navigate to="/" />;
   }
 
@@ -29,6 +31,14 @@ const PrivateRoute = ({ children, roles }: { children: JSX.Element, roles?: stri
   );
 };
 
+const Home = () => {
+  const { user } = useAuth();
+
+  if (user?.role === 'admin') return <Navigate to="/admin-panel" />;
+  if (user?.role === 'organization') return <Navigate to="/org-dashboard" />;
+  return <Discovery />;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -37,16 +47,18 @@ function App() {
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            
-            {/* Volunteer Routes */}
+
+            {/* Main Entry */}
             <Route 
               path="/" 
               element={
-                <PrivateRoute roles={['volunteer']}>
-                  <Discovery />
+                <PrivateRoute>
+                  <Home />
                 </PrivateRoute>
               } 
             />
+
+            {/* Volunteer Routes */}
             <Route 
               path="/portfolio" 
               element={
