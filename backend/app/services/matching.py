@@ -61,6 +61,11 @@ def calculate_match_score(
     
     return round(score, 2), reasons
 
+from app.models.reliability import Participation, ParticipationStatus
+from app.schemas.organization import VolunteerMatch
+
+# ... existing code ...
+
 def get_matches_for_user(
     db: Session, 
     user: User, 
@@ -68,6 +73,7 @@ def get_matches_for_user(
     lon: float, 
     limit: int = 10
 ) -> List[MatchResult]:
+    # ... existing code ...
     # Create user point
     user_point = ST_SetSRID(ST_MakePoint(lon, lat), 4326)
     
@@ -95,3 +101,31 @@ def get_matches_for_user(
     # Sort by score descending
     matches.sort(key=lambda x: x.score, reverse=True)
     return matches[:limit]
+
+def get_suggested_volunteers(
+    db: Session,
+    organization_id: int,
+    limit: int = 5
+) -> List[VolunteerMatch]:
+    # This is a simplified version. 
+    # Real AI would look at the organization's active events and find best matches.
+    # For now, we'll return top reliability score volunteers.
+    
+    volunteers = db.query(User).filter(
+        User.role == "volunteer",
+        User.is_active == True
+    ).order_by(User.reliability_score.desc()).limit(limit).all()
+    
+    matches = []
+    for v in volunteers:
+        # Get their primary skill
+        skill = db.query(UserSkill).filter(UserSkill.user_id == v.id).first()
+        expertise = skill.skill if skill else "General Volunteer"
+        
+        matches.append(VolunteerMatch(
+            user_id=v.id,
+            full_name=v.full_name or "Anonymous",
+            score=float(v.reliability_score),
+            expertise=expertise
+        ))
+    return matches
