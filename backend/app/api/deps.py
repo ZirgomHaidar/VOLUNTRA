@@ -32,7 +32,7 @@ def get_current_user(
         token_data = TokenPayload(**payload)
     except (jwt.JWTError, ValidationError):
         raise HTTPException(
-            status_code=status.HTTP_03_FORBIDDEN,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
     user = db.query(User).filter(User.id == token_data.sub).first()
