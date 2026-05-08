@@ -90,14 +90,14 @@ const AdminPanel = () => {
                 <div className="flex items-center space-x-3">
                   <button 
                     onClick={() => handleReview(doc.id, 'approved')}
-                    className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                    className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors cursor-pointer"
                   >
                     <Check size={18} className="mr-2" />
                     Approve
                   </button>
                   <button 
                     onClick={() => handleReview(doc.id, 'rejected')}
-                    className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-50 transition-colors"
+                    className="flex-1 md:flex-none flex items-center justify-center px-4 py-2 bg-white text-red-600 border border-red-200 rounded-lg font-medium hover:bg-red-50 transition-colors cursor-pointer"
                   >
                     <X size={18} className="mr-2" />
                     Reject

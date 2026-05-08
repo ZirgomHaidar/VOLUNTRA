@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../api/client';
-import { MapPin, Star, Zap, Info } from 'lucide-react';
+import { MapPin, Star, Zap, Info, X, Calendar, Clock, Target, CheckCircle2 } from 'lucide-react';
 
 interface MatchResult {
   event_id: number;
@@ -10,11 +10,26 @@ interface MatchResult {
   match_reasons: string[];
 }
 
+interface FullEvent {
+  id: number;
+  title: string;
+  description: string;
+  start_time: string;
+  end_time: string;
+  organization_id: number;
+}
+
 const Discovery = () => {
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
+  
+  // Detail Modal State
+  const [selectedEvent, setSelectedEvent] = useState<FullEvent | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [modalLoading, setModalModalLoading] = useState(false);
+  const [joinStatus, setJoinStatus] = useState<'idle' | 'joining' | 'success'>('idle');
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -54,8 +69,106 @@ const Discovery = () => {
     }
   };
 
+  const handleViewDetails = async (eventId: number) => {
+    setModalModalLoading(true);
+    setShowModal(true);
+    setJoinStatus('idle');
+    try {
+      const response = await api.get(`/events/${eventId}`);
+      setSelectedEvent(response.data);
+    } catch (err) {
+      setError("Failed to load event details.");
+      setShowModal(false);
+    } finally {
+      setModalModalLoading(false);
+    }
+  };
+
+  const handleJoinEvent = async () => {
+    if (!selectedEvent) return;
+    setJoinStatus('joining');
+    try {
+      await api.post(`/reliability/join/${selectedEvent.id}`);
+      setJoinStatus('success');
+      setTimeout(() => {
+        setShowModal(false);
+        fetchMatches(); // Refresh list
+      }, 1500);
+    } catch (err: any) {
+      alert(err.response?.data?.detail || "Failed to join event");
+      setJoinStatus('idle');
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
+      {/* Event Detail Modal */}
+      {showModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+            {modalLoading ? (
+              <div className="p-20 text-center text-gray-500">Loading details...</div>
+            ) : selectedEvent && (
+              <>
+                <div className="relative h-48 bg-indigo-600 p-8 flex items-end">
+                  <button 
+                    onClick={() => setShowModal(false)}
+                    className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-colors cursor-pointer"
+                  >
+                    <X size={20} />
+                  </button>
+                  <div>
+                    <h2 className="text-3xl font-bold text-white mb-2">{selectedEvent.title}</h2>
+                    <div className="flex items-center text-indigo-100 text-sm">
+                      <Target size={16} className="mr-2" />
+                      Social Impact Event
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="p-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                    <div className="space-y-4 text-gray-600">
+                      <div className="flex items-center">
+                        <Calendar className="mr-3 text-indigo-600" size={20} />
+                        <span>{new Date(selectedEvent.start_time).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Clock className="mr-3 text-indigo-600" size={20} />
+                        <span>{new Date(selectedEvent.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(selectedEvent.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Description</h4>
+                      <p className="text-gray-600 leading-relaxed">{selectedEvent.description}</p>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-gray-100 pt-8 flex items-center justify-between">
+                    <div className="text-sm text-gray-500">
+                      Joining this event will impact your <span className="font-bold text-indigo-600">Reliability Score</span>.
+                    </div>
+                    <button
+                      onClick={handleJoinEvent}
+                      disabled={joinStatus !== 'idle'}
+                      className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center cursor-pointer ${
+                        joinStatus === 'success' 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100'
+                      }`}
+                    >
+                      {joinStatus === 'joining' && 'Joining...'}
+                      {joinStatus === 'success' && <><CheckCircle2 className="mr-2" size={20} /> Joined!</>}
+                      {joinStatus === 'idle' && 'Join Event Now'}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Discover Opportunities</h1>
         <p className="text-gray-600">AI-powered matches based on your skills and location.</p>
@@ -96,7 +209,10 @@ const Discovery = () => {
                   ))}
                 </div>
 
-                <button className="w-full mt-6 bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors">
+                <button 
+                  onClick={() => handleViewDetails(match.event_id)}
+                  className="w-full mt-6 bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors cursor-pointer"
+                >
                   View Details
                 </button>
               </div>

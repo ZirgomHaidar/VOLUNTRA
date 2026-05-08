@@ -8,3 +8,4 @@ from app.models.portfolio import Portfolio, Media  # noqa
 from app.models.document import Document  # noqa
 from app.models.reliability import Participation, Feedback  # noqa
 from app.models.tracking import LocationLog  # noqa
+from app.models.notification import Notification  # noqa

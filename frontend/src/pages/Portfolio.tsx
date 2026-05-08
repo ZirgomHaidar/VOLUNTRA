@@ -91,22 +91,23 @@ const Portfolio = () => {
           <h2 className="text-2xl font-bold text-gray-900">Your Portfolio</h2>
           {!isEditingBio ? (
             <button 
-              onClick={() => setIsEditingBio(true)}
-              className="p-2 text-gray-400 hover:text-indigo-600 transition-colors"
+              onClick={() => setIsEditingBio(!isEditingBio)}
+              className="p-2 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
             >
+
               <Edit3 size={20} />
             </button>
           ) : (
             <div className="flex space-x-2">
               <button 
                 onClick={handleSaveBio}
-                className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors"
+                className="p-2 text-green-600 hover:bg-green-50 rounded-full transition-colors cursor-pointer"
               >
                 <Save size={20} />
               </button>
               <button 
                 onClick={() => { setIsEditingBio(false); setBio(portfolio?.bio || ''); }}
-                className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors"
+                className="p-2 text-gray-400 hover:bg-gray-50 rounded-full transition-colors cursor-pointer"
               >
                 <X size={20} />
               </button>
@@ -163,7 +164,7 @@ const Portfolio = () => {
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button 
                     onClick={() => handleDeleteMedia(item.id)}
-                    className="p-3 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all"
+                    className="p-3 bg-white/20 hover:bg-red-500/80 text-white rounded-full transition-all cursor-pointer"
                   >
                     <Trash2 size={24} />
                   </button>
