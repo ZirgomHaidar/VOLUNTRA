@@ -48,7 +48,6 @@ def complete_participation(
     if not participation:
         raise HTTPException(status_code=404, detail="Participation not found")
     
-    # In a real app, verify if current_user is the event organization
     participation.status = ParticipationStatus.COMPLETED
     db.commit()
     
@@ -57,6 +56,27 @@ def complete_participation(
     reliability_service.update_user_reliability(db, participation.user_id)
     
     return {"message": "Participation marked as completed"}
+
+@router.post("/no-show/{participation_id}")
+def mark_no_show(
+    participation_id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+):
+    """
+    Mark volunteer as no-show (drops reliability score).
+    """
+    participation = db.query(Participation).filter(Participation.id == participation_id).first()
+    if not participation:
+        raise HTTPException(status_code=404, detail="Participation not found")
+    
+    participation.status = ParticipationStatus.NO_SHOW
+    db.commit()
+    
+    # Recalculate reliability (it will drop because of NO_SHOW status)
+    reliability_service.update_user_reliability(db, participation.user_id)
+    
+    return {"message": "Participation marked as no-show"}
 
 @router.post("/feedback")
 def submit_feedback(

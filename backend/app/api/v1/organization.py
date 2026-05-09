@@ -6,7 +6,7 @@ from app.api import deps
 from app.models.user import User, UserRole
 from app.models.event import Event
 from app.models.reliability import Participation, ParticipationStatus
-from app.schemas.organization import OrganizationStats, VolunteerMatch
+from app.schemas.organization import OrganizationStats, VolunteerMatch, Participant
 from app.services import matching as matching_service
 
 from app.models.notification import Notification, NotificationType
@@ -22,7 +22,7 @@ def get_active_events(
     """
     Get active events for the current organization.
     """
-    if current_user.role != UserRole.ORGANIZATION:
+    if current_user.role.lower() != 'organization':
         raise HTTPException(status_code=403, detail="Not authorized")
     return db.query(Event).filter(
         Event.organization_id == current_user.id,
@@ -39,7 +39,7 @@ def invite_volunteer(
     """
     Invite a volunteer to an event.
     """
-    if current_user.role != UserRole.ORGANIZATION:
+    if current_user.role.lower() != 'organization':
         raise HTTPException(status_code=403, detail="Not authorized")
     
     event = db.query(Event).filter(Event.id == event_id, Event.organization_id == current_user.id).first()
@@ -62,6 +62,35 @@ def invite_volunteer(
     db.commit()
     return {"message": "Invitation sent successfully"}
 
+@router.get("/participants", response_model=List[Participant])
+def get_participants(
+    db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Get all volunteers who joined the organization's events.
+    """
+    if current_user.role.lower() != 'organization':
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    # Query participations for events owned by this org
+    participations = db.query(Participation).join(Event).filter(
+        Event.organization_id == current_user.id
+    ).order_by(Participation.created_at.desc()).all()
+    
+    results = []
+    for p in participations:
+        results.append({
+            "id": p.id,
+            "user_id": p.user_id,
+            "user_name": p.user.full_name,
+            "event_id": p.event_id,
+            "event_title": p.event.title,
+            "status": p.status,
+            "joined_at": p.created_at
+        })
+    return results
+
 @router.get("/stats", response_model=OrganizationStats)
 def get_org_stats(
     db: Session = Depends(deps.get_db),
@@ -70,7 +99,7 @@ def get_org_stats(
     """
     Get statistics for the current organization.
     """
-    if current_user.role != UserRole.ORGANIZATION:
+    if current_user.role.lower() != 'organization':
         raise HTTPException(status_code=403, detail="Not authorized")
     
     active_events = db.query(Event).filter(
@@ -114,7 +143,7 @@ def get_suggested_volunteers(
     """
     Get AI-suggested volunteers for the organization's events.
     """
-    if current_user.role != UserRole.ORGANIZATION:
+    if current_user.role.lower() != 'organization':
         raise HTTPException(status_code=403, detail="Not authorized")
     
     return matching_service.get_suggested_volunteers(db, organization_id=current_user.id)

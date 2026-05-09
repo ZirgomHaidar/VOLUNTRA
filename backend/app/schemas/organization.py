@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import List
+from datetime import datetime
 from app.schemas.event import Event
 
 class OrganizationStats(BaseModel):
@@ -12,3 +13,15 @@ class VolunteerMatch(BaseModel):
     full_name: str
     score: float
     expertise: str
+
+class Participant(BaseModel):
+    id: int # participation_id
+    user_id: int
+    user_name: str
+    event_id: int
+    event_title: str
+    status: str
+    joined_at: datetime
+
+    class Config:
+        from_attributes = True

@@ -33,9 +33,10 @@ const PrivateRoute = ({ children, roles }: { children: JSX.Element, roles?: stri
 
 const Home = () => {
   const { user } = useAuth();
+  const role = user?.role?.toLowerCase();
 
-  if (user?.role === 'admin') return <Navigate to="/admin-panel" />;
-  if (user?.role === 'organization') return <Navigate to="/org-dashboard" />;
+  if (role === 'admin') return <Navigate to="/admin-panel" />;
+  if (role === 'organization') return <Navigate to="/org-dashboard" />;
   return <Discovery />;
 };
 

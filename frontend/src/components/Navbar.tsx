@@ -22,7 +22,7 @@ const Navbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   useEffect(() => {
-    if (user?.role === 'volunteer') {
+    if (user?.role?.toLowerCase() === 'volunteer') {
       fetchNotifications();
       const interval = setInterval(fetchNotifications, 30000);
       return () => clearInterval(interval);
@@ -61,7 +61,8 @@ const Navbar = () => {
             
             <div className="hidden md:flex items-center space-x-4">
               {/* Volunteer Links */}
-              {user?.role === 'volunteer' && (
+              {user?.role?.toLowerCase() === 'volunteer'
+ && (
                 <>
                   <Link 
                     to="/" 
@@ -85,7 +86,7 @@ const Navbar = () => {
               )}
 
               {/* Organization Links */}
-              {user?.role === 'organization' && (
+              {user?.role?.toLowerCase() === 'organization' && (
                 <Link 
                   to="/org-dashboard" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/org-dashboard') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
@@ -98,7 +99,7 @@ const Navbar = () => {
               )}
 
               {/* Admin Links */}
-              {user?.role === 'admin' && (
+              {user?.role?.toLowerCase() === 'admin' && (
                 <Link 
                   to="/admin-panel" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/admin-panel') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
@@ -110,7 +111,8 @@ const Navbar = () => {
                 </Link>
               )}
 
-              {user?.role === 'volunteer' && (
+              {user?.role?.toLowerCase() === 'volunteer'
+ && (
                 <Link 
                   to="/verification" 
                   className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/verification') ? 'text-indigo-600 bg-indigo-50' : 'text-gray-600 hover:text-gray-900'}`}
@@ -125,7 +127,8 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
-            {user?.role === 'volunteer' && (
+            {user?.role?.toLowerCase() === 'volunteer'
+ && (
               <div className="hidden lg:flex items-center space-x-4 border-r border-gray-100 pr-4">
                 <div className="flex items-center text-amber-600 bg-amber-50 px-3 py-1 rounded-full text-sm font-bold shadow-sm border border-amber-100">
                   <Trophy size={14} className="mr-1.5" />
@@ -139,7 +142,8 @@ const Navbar = () => {
             )}
 
             {/* Notifications Bell */}
-            {user?.role === 'volunteer' && (
+            {user?.role?.toLowerCase() === 'volunteer'
+ && (
               <div className="relative">
                 <button 
                   onClick={() => setShowNotifications(!showNotifications)}

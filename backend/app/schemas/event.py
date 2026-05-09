@@ -13,6 +13,15 @@ class EventCreate(EventBase):
     longitude: float
     skills: List[str]
 
+class EventUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    skills: Optional[List[str]] = None
+
 class Event(EventBase):
     id: int
     organization_id: int

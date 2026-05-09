@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 from app.api import deps
 from app.models.user import User, UserRole
 from app.models.event import Event, event_skills
-from app.schemas.event import EventCreate, Event as EventSchema
+from app.models.reliability import Participation
+from app.models.notification import Notification, NotificationType
+from app.schemas.event import EventCreate, EventUpdate, Event as EventSchema
 from geoalchemy2.elements import WKTElement
 from datetime import datetime
 
@@ -20,7 +22,8 @@ def create_event(
     """
     Create new event.
     """
-    if current_user.role != UserRole.ORGANIZATION and current_user.role != UserRole.ADMIN:
+    role = current_user.role.lower()
+    if role != 'organization' and role != 'admin':
         raise HTTPException(status_code=403, detail="Not authorized")
     
     # Create location point
@@ -47,6 +50,63 @@ def create_event(
     
     return event
 
+@router.put("/{event_id}", response_model=EventSchema)
+def update_event(
+    *,
+    db: Session = Depends(deps.get_db),
+    event_id: int,
+    event_in: EventUpdate,
+    current_user: User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Update an event and notify joined volunteers.
+    """
+    event = db.query(Event).filter(Event.id == event_id).first()
+    if not event:
+        raise HTTPException(status_code=404, detail="Event not found")
+    
+    role = current_user.role.lower()
+    if event.organization_id != current_user.id and role != 'admin':
+        raise HTTPException(status_code=403, detail="Not authorized")
+    
+    update_data = event_in.model_dump(exclude_unset=True)
+    
+    if "latitude" in update_data or "longitude" in update_data:
+        lat = update_data.get("latitude", 0)
+        lon = update_data.get("longitude", 0)
+        point = f"POINT({lon} {lat})"
+        event.location = WKTElement(point, srid=4326)
+        update_data.pop("latitude", None)
+        update_data.pop("longitude", None)
+
+    if "skills" in update_data:
+        db.execute(event_skills.delete().where(event_skills.c.event_id == event_id))
+        for skill in update_data["skills"]:
+            db.execute(event_skills.insert().values(event_id=event.id, skill=skill))
+        update_data.pop("skills")
+
+    for field in update_data:
+        setattr(event, field, update_data[field])
+    
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    
+    # Notify joined volunteers
+    volunteers = db.query(Participation).filter(Participation.event_id == event_id).all()
+    for p in volunteers:
+        notification = Notification(
+            user_id=p.user_id,
+            title=f"Update: {event.title}",
+            message=f"The event '{event.title}' you joined has been updated. Please check the new details.",
+            type=NotificationType.GENERAL,
+            event_id=event_id
+        )
+        db.add(notification)
+    db.commit()
+    
+    return event
+
 @router.get("/me", response_model=List[EventSchema])
 def get_my_events(
     db: Session = Depends(deps.get_db),
@@ -55,14 +115,10 @@ def get_my_events(
     """
     Get all events for the current organization.
     """
-    if current_user.role != UserRole.ORGANIZATION:
+    if current_user.role.lower() != 'organization':
         raise HTTPException(status_code=403, detail="Not authorized")
     
     return db.query(Event).filter(Event.organization_id == current_user.id).all()
-
-from app.models.reliability import Participation
-
-# ... (other code) ...
 
 @router.get("/{event_id}", response_model=EventSchema)
 def get_event(
@@ -77,13 +133,11 @@ def get_event(
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
     
-    # Check if current user has joined
     has_joined = db.query(Participation).filter(
         Participation.user_id == current_user.id,
         Participation.event_id == event_id
     ).first() is not None
     
-    # Return event with joined status and org name
     return {
         "id": event.id,
         "title": event.title,

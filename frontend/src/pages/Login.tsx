@@ -23,7 +23,7 @@ const Login = () => {
       
       // Fetch user again or decode token to get role
       const userRes = await api.get('/auth/me');
-      const role = userRes.data.role;
+      const role = userRes.data.role?.toLowerCase();
       
       if (role === 'admin') navigate('/admin-panel');
       else if (role === 'organization') navigate('/org-dashboard');
