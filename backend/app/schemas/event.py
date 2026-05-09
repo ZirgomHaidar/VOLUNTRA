@@ -16,6 +16,7 @@ class EventCreate(EventBase):
 class Event(EventBase):
     id: int
     organization_id: int
+    has_joined: Optional[bool] = False
 
     class Config:
         from_attributes = True

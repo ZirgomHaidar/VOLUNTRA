@@ -17,6 +17,7 @@ interface FullEvent {
   start_time: string;
   end_time: string;
   organization_id: number;
+  has_joined: boolean;
 }
 
 const Discovery = () => {
@@ -150,16 +151,16 @@ const Discovery = () => {
                     </div>
                     <button
                       onClick={handleJoinEvent}
-                      disabled={joinStatus !== 'idle'}
+                      disabled={joinStatus !== 'idle' || selectedEvent.has_joined}
                       className={`px-8 py-3 rounded-xl font-bold transition-all flex items-center cursor-pointer ${
-                        joinStatus === 'success' 
+                        joinStatus === 'success' || selectedEvent.has_joined
                         ? 'bg-green-100 text-green-700' 
                         : 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-100'
                       }`}
                     >
                       {joinStatus === 'joining' && 'Joining...'}
-                      {joinStatus === 'success' && <><CheckCircle2 className="mr-2" size={20} /> Joined!</>}
-                      {joinStatus === 'idle' && 'Join Event Now'}
+                      {(joinStatus === 'success' || selectedEvent.has_joined) && <><CheckCircle2 className="mr-2" size={20} /> Joined!</>}
+                      {joinStatus === 'idle' && !selectedEvent.has_joined && 'Join Event Now'}
                     </button>
                   </div>
                 </div>

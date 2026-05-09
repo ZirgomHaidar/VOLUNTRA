@@ -60,10 +60,15 @@ def get_my_events(
     
     return db.query(Event).filter(Event.organization_id == current_user.id).all()
 
+from app.models.reliability import Participation
+
+# ... (other code) ...
+
 @router.get("/{event_id}", response_model=EventSchema)
 def get_event(
     event_id: int,
     db: Session = Depends(deps.get_db),
+    current_user: User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Get event by ID.
@@ -71,4 +76,20 @@ def get_event(
     event = db.query(Event).filter(Event.id == event_id).first()
     if not event:
         raise HTTPException(status_code=404, detail="Event not found")
-    return event
+    
+    # Check if current user has joined
+    has_joined = db.query(Participation).filter(
+        Participation.user_id == current_user.id,
+        Participation.event_id == event_id
+    ).first() is not None
+    
+    # Return event with joined status
+    return {
+        "id": event.id,
+        "title": event.title,
+        "description": event.description,
+        "start_time": event.start_time,
+        "end_time": event.end_time,
+        "organization_id": event.organization_id,
+        "has_joined": has_joined
+    }
