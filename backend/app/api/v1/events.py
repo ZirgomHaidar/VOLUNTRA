@@ -83,7 +83,7 @@ def get_event(
         Participation.event_id == event_id
     ).first() is not None
     
-    # Return event with joined status
+    # Return event with joined status and org name
     return {
         "id": event.id,
         "title": event.title,
@@ -91,5 +91,6 @@ def get_event(
         "start_time": event.start_time,
         "end_time": event.end_time,
         "organization_id": event.organization_id,
+        "organization_name": event.organization.full_name,
         "has_joined": has_joined
     }

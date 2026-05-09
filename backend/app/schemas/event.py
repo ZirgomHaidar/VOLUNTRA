@@ -16,6 +16,7 @@ class EventCreate(EventBase):
 class Event(EventBase):
     id: int
     organization_id: int
+    organization_name: Optional[str] = None
     has_joined: Optional[bool] = False
 
     class Config:

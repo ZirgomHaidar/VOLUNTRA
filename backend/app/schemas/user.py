@@ -27,6 +27,8 @@ class UserInDBBase(UserBase):
 # Additional properties to return via API
 class User(UserInDBBase):
     is_verified: bool
+    points: int
+    reliability_score: int
 
 # Additional properties stored in DB
 class UserInDB(UserInDBBase):

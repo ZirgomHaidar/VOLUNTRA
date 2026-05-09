@@ -17,6 +17,7 @@ interface FullEvent {
   start_time: string;
   end_time: string;
   organization_id: number;
+  organization_name: string;
   has_joined: boolean;
 }
 
@@ -122,7 +123,7 @@ const Discovery = () => {
                     <h2 className="text-3xl font-bold text-white mb-2">{selectedEvent.title}</h2>
                     <div className="flex items-center text-indigo-100 text-sm">
                       <Target size={16} className="mr-2" />
-                      Social Impact Event
+                      Hosted by {selectedEvent.organization_name}
                     </div>
                   </div>
                 </div>
