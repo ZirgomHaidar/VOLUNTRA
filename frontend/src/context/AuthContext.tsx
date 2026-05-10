@@ -32,7 +32,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUser(response.data);
     } catch (error) {
       console.error('Failed to fetch user', error);
-      logout();
+      // Let the global interceptor handle the token removal and redirect
+      // but still reset internal state here to stop loading spinner
+      setToken(null);
+      setUser(null);
     } finally {
       setLoading(false);
     }

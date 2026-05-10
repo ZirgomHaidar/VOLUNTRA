@@ -32,9 +32,12 @@ const PrivateRoute = ({ children, roles }: { children: JSX.Element, roles?: stri
 };
 
 const Home = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  
+  if (loading) return null;
+  if (!user) return <Navigate to="/login" />;
+  
   const role = user?.role?.toLowerCase();
-
   if (role === 'admin') return <Navigate to="/admin-panel" />;
   if (role === 'organization') return <Navigate to="/org-dashboard" />;
   return <Discovery />;
